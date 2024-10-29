@@ -79,8 +79,8 @@ public class AnimationAndMovementController : MonoBehaviour
         if (!isJumping && characterController.isGrounded && isJumpPressed)
         {
             isJumping = true;
-            currentMovement.y  = initialJumpVelocity * .5f;
-            currentRunMovement.y = initialJumpVelocity * .5f;
+            currentMovement.y  = initialJumpVelocity;
+            currentRunMovement.y = initialJumpVelocity;
             Debug.Log("jump");
         }
         else if (!isJumpPressed && isJumping && characterController.isGrounded)
@@ -170,7 +170,7 @@ public class AnimationAndMovementController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
        
         handleRotation();
