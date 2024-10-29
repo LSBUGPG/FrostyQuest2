@@ -31,8 +31,8 @@ public class AnimationAndMovementController : MonoBehaviour
     float groundedGravity = -0.5f;
 
     // Changing Speed Variable
-    float runSpeed = 20f;
-    float walkSpeed = 10f;
+    public float runSpeed = 20f;
+    public float walkSpeed = 10f;
 
     // Jumping Variable
     bool isJumpPressed = false;
