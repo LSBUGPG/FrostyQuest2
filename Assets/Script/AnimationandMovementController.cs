@@ -170,7 +170,7 @@ public class AnimationAndMovementController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
        
         handleRotation();
