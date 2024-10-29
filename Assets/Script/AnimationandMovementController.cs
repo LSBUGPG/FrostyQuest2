@@ -11,7 +11,7 @@ public class AnimationAndMovementController : MonoBehaviour
     CharacterController characterController;
     Animator animator;
 
-    // variables to store optimised setter/getter parameters id
+    // variables to store optimized setter/getter parameters id
     int isWalkingHash;
     int isRunningHash;
 
@@ -25,24 +25,21 @@ public class AnimationAndMovementController : MonoBehaviour
     // Constants
     float rotationFactorPerFrame = 1.0f;
     float runMultiplier = 3.0f;
-    int zero = 0;
 
     // gravity variable
     float gravity = -9.8f;
     float groundedGravity = -0.5f;
 
     // Changing Speed Variable
-    float runSpeed = 20;
-    float walkSpeed = 20;
+    float runSpeed = 20f;
+    float walkSpeed = 10f;
 
     // Jumping Variable
     bool isJumpPressed = false;
     float initialJumpVelocity;
-    float maxJumpheight = 1f;
+    float maxJumpHeight = 1f;
     float maxJumpTime = 0.5f;
     bool isJumping = false;
-
-
 
     void Awake()
     {
@@ -50,38 +47,34 @@ public class AnimationAndMovementController : MonoBehaviour
         playerInput = new PlayerInput();
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
-
         isWalkingHash = Animator.StringToHash("isWalking");
         isRunningHash = Animator.StringToHash("isRunning");
 
-        playerInput.Player.Move.started += OnMoveventInput;
-        playerInput.Player.Move.canceled += OnMoveventInput;
-        playerInput.Player.Move.performed += OnMoveventInput;
-        playerInput.Player.Run.started += onRun;
-        playerInput.Player.Run.canceled += onRun;
-        playerInput.Player.Jump.started += onJump;
-        playerInput.Player.Jump.canceled += onJump;
+        playerInput.Player.Move.started += OnMovementInput;
+        playerInput.Player.Move.canceled += OnMovementInput;
+        playerInput.Player.Move.performed += OnMovementInput;
+        playerInput.Player.Run.started += OnRun;
+        playerInput.Player.Run.canceled += OnRun;
+        playerInput.Player.Jump.started += OnJump;
+        playerInput.Player.Jump.canceled += OnJump;
 
-        playerInput.Player.Move.performed += context => {
-        };
-        setupJumpVariable();
-
+        SetupJumpVariables();
     }
-    void setupJumpVariable() 
+
+    void SetupJumpVariables()
     {
         float timeToApex = maxJumpTime / 2;
-        gravity = (-2 * maxJumpheight) / Mathf.Pow(timeToApex, 2);
-        initialJumpVelocity = (2 * maxJumpheight) / timeToApex;
+        gravity = (-2 * maxJumpHeight) / Mathf.Pow(timeToApex, 2);
+        initialJumpVelocity = (2 * maxJumpHeight) / timeToApex;
     }
 
-    void handleJump()
+    void HandleJump()
     {
         if (!isJumping && characterController.isGrounded && isJumpPressed)
         {
             isJumping = true;
-            currentMovement.y  = initialJumpVelocity;
+            currentMovement.y = initialJumpVelocity;
             currentRunMovement.y = initialJumpVelocity;
-            Debug.Log("jump");
         }
         else if (!isJumpPressed && isJumping && characterController.isGrounded)
         {
@@ -89,24 +82,19 @@ public class AnimationAndMovementController : MonoBehaviour
         }
     }
 
-    void onJump(InputAction.CallbackContext context)
+    void OnJump(InputAction.CallbackContext context)
     {
         isJumpPressed = context.ReadValueAsButton();
     }
 
-    void onRun(InputAction.CallbackContext context)
+    void OnRun(InputAction.CallbackContext context)
     {
         isRunPressed = context.ReadValueAsButton();
     }
 
-    void handleRotation()
+    void HandleRotation()
     {
-        Vector3 positionToLookAt;
-
-        positionToLookAt.x = currentMovement.x;
-        positionToLookAt.y = 0.0f;
-        positionToLookAt.z = currentMovement.z;
-
+        Vector3 positionToLookAt = new Vector3(currentMovement.x, 0.0f, currentMovement.z);
         Quaternion currentRotation = transform.rotation;
 
         if (isMovementPressed)
@@ -114,20 +102,19 @@ public class AnimationAndMovementController : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(positionToLookAt);
             transform.rotation = Quaternion.Slerp(currentRotation, targetRotation, rotationFactorPerFrame * Time.deltaTime);
         }
-
     }
 
-    void OnMoveventInput(InputAction.CallbackContext context)
+    void OnMovementInput(InputAction.CallbackContext context)
     {
         currentMovementInput = context.ReadValue<Vector2>();
         currentMovement.x = currentMovementInput.x;
         currentMovement.z = currentMovementInput.y;
         currentRunMovement.x = currentMovementInput.x * runMultiplier;
         currentRunMovement.z = currentMovementInput.y * runMultiplier;
-        isMovementPressed = currentMovementInput.x != zero || currentMovementInput.y != zero;
+        isMovementPressed = currentMovementInput.x != 0 || currentMovementInput.y != 0;
     }
 
-    void handleAnimation()
+    void HandleAnimation()
     {
         bool isWalking = animator.GetBool(isWalkingHash);
         bool isRunning = animator.GetBool(isRunningHash);
@@ -136,13 +123,12 @@ public class AnimationAndMovementController : MonoBehaviour
         {
             animator.SetBool(isWalkingHash, true);
         }
-
         else if (!isMovementPressed && isWalking)
         {
             animator.SetBool(isWalkingHash, false);
         }
 
-        if ((isMovementPressed && isRunPressed) && !isRunning)
+        if (isMovementPressed && isRunPressed && !isRunning)
         {
             animator.SetBool(isRunningHash, true);
         }
@@ -151,30 +137,30 @@ public class AnimationAndMovementController : MonoBehaviour
             animator.SetBool(isRunningHash, false);
         }
     }
-    void handleGravity()
+
+    void HandleGravity()
     {
         if (characterController.isGrounded)
         {
             currentMovement.y = groundedGravity;
             currentRunMovement.y = groundedGravity;
-
         }
         else
         {
             float previousYVelocity = currentMovement.y;
             float newYVelocity = currentMovement.y + (gravity * Time.deltaTime);
-            float nextYVelocity = (previousYVelocity + newYVelocity * .5f);
+            float nextYVelocity = (previousYVelocity + newYVelocity) * 0.5f;
             currentMovement.y = nextYVelocity;
             currentRunMovement.y = nextYVelocity;
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-       
-        handleRotation();
-        handleAnimation();
+        HandleRotation();
+        HandleAnimation();
+        HandleGravity();
+        HandleJump();
 
         if (isRunPressed)
         {
@@ -184,19 +170,15 @@ public class AnimationAndMovementController : MonoBehaviour
         {
             characterController.Move(currentMovement * walkSpeed * Time.deltaTime);
         }
-        handleGravity();
-        handleJump();
     }
 
     void OnEnable()
     {
-        // enable the character controls action map
         playerInput.Player.Enable();
     }
 
     void OnDisable()
     {
-        // disable the character controls action map
         playerInput.Player.Disable();
     }
 }
